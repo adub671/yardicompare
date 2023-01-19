@@ -128,12 +128,12 @@ const Compare = () => {
   return (
     <>
       <div className="input">
-        <div>Reporting > Property > Rent Schedule > Excel</div>
+        <h2>Reporting > Property > Rent Schedule > Excel</h2>
         <label>Rent Schedule</label>
         <input type="file" onChange={updateExcel1} />
       </div>
       <div className="input">
-        <div>Reporting > Tenant > Tenant Listing > Excel</div>
+        <h2>Reporting > Tenant > Tenant Listing > Excel</h2>
         <label>Tenant Listing</label>
         <input type="file" onChange={updateExcel2} />
       </div>
