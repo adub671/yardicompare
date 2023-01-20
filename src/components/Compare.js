@@ -90,12 +90,6 @@ const Compare = () => {
       for (let j = 0; j < data2.length; j++) {
         const date1 = new Date(data1[i].dateto);
         const date2 = new Date(data2[j].leaseto);
-        // const day1 = date1.getDate();
-        // const day2 = date2.getDate();
-        // const month1 = date1.getMonth();
-        // const month2 = date2.getMonth();
-        // const year1 = date1.getYear();
-        // const year2 = date2.getYear();
         const tenant1 = data1[i].tenant;
         const tenant2 = data2[j].tenant;
         const dateDiff =
@@ -103,18 +97,26 @@ const Compare = () => {
 
         if (tenant1 === tenant2) {
           if (data2[j].leaseto === undefined && data1[i].dateto === undefined) {
+            //Do nothing if both lease and scheduled charge date are undefined
+          }
+          //If lease end date does not exist and scheduled charge date exists, add to result
+          if (data2[j].leaseto === undefined && data1[i].dateto !== undefined) {
+            results.push({
+              tenant: tenant1,
+              chargeto: new Date(data1[i].dateto).toLocaleDateString(),
+              leaseto: data2[j].leaseto,
+              property: data2[j].property,
+            });
+            counter = counter + 1;
+            //If scheduled charge end date and lease end date are greater than 2 days and both exist add to result
           } else {
-            if (
-              dateDiff > 2
-              // || month1 !== month2 || year1 !== year2
-            ) {
+            if (dateDiff > 2) {
               results.push({
                 tenant: tenant1,
                 chargeto: new Date(data1[i].dateto).toLocaleDateString(),
                 leaseto: data2[j].leaseto,
                 property: data2[j].property,
               });
-              console.log(dateDiff, "date difference", tenant1);
               counter = counter + 1;
             }
           }
@@ -139,25 +141,33 @@ const Compare = () => {
       </div>
       <button onClick={compareResult}>Compare</button>
       <button onClick={reset}>Reset</button>
-      <div>Error Counter: {mismatchCounter}</div>
-      <div>Lease End and Schedule Charge End Date Do Not Match For:</div>
-      <div className="mismatches">
-        {mismatch.length > 0 &&
-          mismatch.map((one) => (
-            <>
-              <div className="mismatch">
-                <input type="checkbox"></input>
-                {one.tenant +
-                  "-" +
-                  one.property +
-                  "-" +
-                  one.leaseto +
-                  "-" +
-                  one.chargeto}
-              </div>
-            </>
-          ))}
-      </div>
+      {mismatchCounter > 0 && (
+        <>
+          <div>Error Counter: {mismatchCounter}</div>
+          <div>Lease End and Schedule Charge End Date Do Not Match For:</div>
+          <div className="mismatch-table">
+            <table>
+              <tr>
+                <th>OK</th>
+                <th>Tenant Name</th>
+                <th>Lease Ends</th>
+                <th>Schedule Charge Ends</th>
+              </tr>
+              {mismatch.length > 0 &&
+                mismatch.map((one) => (
+                  <tr className="mismatch">
+                    <td>
+                      <input type="checkbox"></input>
+                    </td>
+                    <td>{one.tenant}</td>
+                    <td>{one.leaseto}</td>
+                    <td>{one.chargeto}</td>
+                  </tr>
+                ))}
+            </table>
+          </div>
+        </>
+      )}
     </>
   );
 };
