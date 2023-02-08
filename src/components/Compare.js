@@ -74,7 +74,6 @@ const Compare = () => {
   }
 
   function compareResult() {
-    console.log(excel1.name, excel2.name, "jah");
     if (!excel1.name.startsWith("rent")) {
       alert("You selected the wrong document for the first file");
     }
@@ -84,48 +83,103 @@ const Compare = () => {
     if (excel1 === null || excel2 === null) {
       alert("Please make sure you upload both documents");
     }
-    let counter = 0;
     const results = [];
-    for (let i = 0; i < data1.length; i++) {
-      for (let j = 0; j < data2.length; j++) {
-        const date1 = new Date(data1[i].dateto);
-        const date2 = new Date(data2[j].leaseto);
-        const tenant1 = data1[i].tenant;
-        const tenant2 = data2[j].tenant;
-        const dateDiff =
-          Math.abs(date1.getTime() - date2.getTime()) / (1000 * 60 * 60 * 24);
+    const analysisObj = {};
+    const resultObj = {};
 
-        if (tenant1 === tenant2) {
-          if (data2[j].leaseto === undefined && data1[i].dateto === undefined) {
-            //Do nothing if both lease and scheduled charge date are undefined
-          }
-          //If lease end date does not exist and scheduled charge date exists, add to result
-          if (data2[j].leaseto === undefined && data1[i].dateto !== undefined) {
-            results.push({
-              tenant: tenant1,
-              chargeto: new Date(data1[i].dateto).toLocaleDateString(),
-              leaseto: data2[j].leaseto,
-              property: data2[j].property,
-            });
-            counter = counter + 1;
-            //If scheduled charge end date and lease end date are greater than 2 days and both exist add to result
-          } else {
-            if (dateDiff > 2) {
-              results.push({
-                tenant: tenant1,
-                chargeto: new Date(data1[i].dateto).toLocaleDateString(),
-                leaseto: data2[j].leaseto,
-                property: data2[j].property,
-              });
-              counter = counter + 1;
-            }
-          }
-        }
-      }
+    for (let i = 0; i < data1.length; i++) {
+      //iterate through rent schedule data to get charge to date
+      const tenantName = data1[i].tenant;
+      const date = new Date(data1[i].dateto).toLocaleDateString();
+      analysisObj[tenantName] = { tenant: null, chargeto: null, leaseto: null };
+      analysisObj[tenantName]["tenant"] = tenantName;
+      analysisObj[tenantName]["chargeto"] =
+        date === "Invalid Date" ? null : date;
+
+      //TODO ADD CONDITIONAL IF ENTRY EXISTS ALREADY COMPARE THE DATES, PUSH ONLY THE LATEST DATE
     }
+    for (let j = 0; j < data2.length; j++) {
+      //iterate through tenant listing data to get lease to date
+      const tenantName = data2[j].tenant;
+      const date = data2[j].leaseto;
+      if (!analysisObj[tenantName]) {
+        analysisObj[tenantName] = {
+          tenant: null,
+          chargeto: null,
+          leaseto: null,
+        };
+      }
+      analysisObj[tenantName]["tenant"] = tenantName;
+      analysisObj[tenantName]["leaseto"] = date;
+    }
+    // console.log(analysisObj, "analsys Obj");
+    //Analysis loop through created analysisObj to see conditions for chargeto & leaseto
+    const analysisArr = Object.values(analysisObj);
+    for (let i = 0; i < analysisArr.length; i++) {
+      const analyze = analysisArr[i];
+      const leaseto = new Date(analyze["leaseto"]);
+      const chargeto = new Date(analyze["chargeto"]);
+      // if (leaseto && chargeto) {
+
+      const dateDiff =
+        Math.abs(leaseto?.getTime() - chargeto?.getTime()) /
+        (1000 * 60 * 60 * 24);
+      console.log(analyze.chargeto, chargeto, analyze.tenant);
+      if (dateDiff > 2 || (!analyze.leaseto && analyze.chargeto)) {
+        results.push(analyze);
+      }
+
+      // }
+    }
+
+    console.log(results, "results");
     setMismatch(results);
-    setMismatchCounter(counter);
+    setMismatchCounter(results.length);
   }
+
+  //   for (let i = 0; i < data1.length; i++) {
+  //     for (let j = 0; j < data2.length; j++) {
+  //       const date1 = new Date(data1[i].dateto);
+  //       const date2 = new Date(data2[j].leaseto);
+  //       const tenant1 = data1[i].tenant;
+  //       const tenant2 = data2[j].tenant;
+  //       const dateDiff =
+  //         Math.abs(date1.getTime() - date2.getTime()) / (1000 * 60 * 60 * 24);
+
+  //       if (tenant1 === tenant2) {
+  //         const output = {
+  //           tenant: tenant1,
+  //           chargeto: new Date(data1[i].dateto).toLocaleDateString(),
+  //           leaseto: data2[j].leaseto,
+  //           property: data2[j].property,
+  //         };
+  //         if (data2[j].leaseto === undefined && data1[i].dateto === undefined) {
+  //           //Do nothing if both lease and scheduled charge date are undefined
+  //         }
+  //         //If lease is undefined and if scheduled charge exists
+  //         if (data2[j].leaseto === undefined && data1[i].dateto !== undefined) {
+  //           results.push(output);
+  //           resultObj[tenant1] = output;
+  //           counter = counter + 1;
+  //         } else {
+  //           //If scheduled charge end date and lease end date are greater than 2 days and both exist add to result
+  //           if (dateDiff > 2) {
+  //             results.push(output);
+  //             resultObj[tenant1] = output;
+  //             counter = counter + 1;
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  //   const resultArr = Object.values(resultObj);
+  //   console.log(resultObj, "result object");
+  //   console.log(resultArr, "result array");
+  //   console.log(data1, "data1", data2, "data2");
+  //   setMismatch(resultArr);
+  //   setMismatchCounter(resultArr.length);
+
+  // }
 
   return (
     <>
