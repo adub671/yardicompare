@@ -91,11 +91,36 @@ const Compare = () => {
       //iterate through rent schedule data to get charge to date
       const tenantName = data1[i].tenant;
       const date = new Date(data1[i].dateto).toLocaleDateString();
-      analysisObj[tenantName] = { tenant: null, chargeto: null, leaseto: null };
-      analysisObj[tenantName]["tenant"] = tenantName;
-      analysisObj[tenantName]["chargeto"] =
-        date === "Invalid Date" ? null : date;
 
+      if (!analysisObj[tenantName]) {
+        analysisObj[tenantName] = {
+          tenant: null,
+          chargeto: null,
+          leaseto: null,
+        };
+        analysisObj[tenantName]["tenant"] = tenantName;
+        if (tenantName === "Emily Snider") {
+          console.log(
+            date,
+            date === "Invalid Date" ? null : date,
+            "EMILY SNIDER DATE"
+          );
+        }
+        analysisObj[tenantName]["chargeto"] =
+          date === "Invalid Date" ? null : date;
+      } else {
+        if (analysisObj[tenantName]["chargeto"] < date) {
+          analysisObj[tenantName]["chargeto"] =
+            date === "Invalid Date" ? null : date;
+        }
+        if (tenantName === "Emily Snider") {
+          console.log(
+            date,
+
+            "EMILY SNIDER DATE2"
+          );
+        }
+      }
       //TODO ADD CONDITIONAL IF ENTRY EXISTS ALREADY COMPARE THE DATES, PUSH ONLY THE LATEST DATE
     }
     for (let j = 0; j < data2.length; j++) {
@@ -124,7 +149,6 @@ const Compare = () => {
       const dateDiff =
         Math.abs(leaseto?.getTime() - chargeto?.getTime()) /
         (1000 * 60 * 60 * 24);
-      console.log(analyze.chargeto, chargeto, analyze.tenant);
       if (dateDiff > 2 || (!analyze.leaseto && analyze.chargeto)) {
         results.push(analyze);
       }
