@@ -11,7 +11,7 @@ function App() {
           alt="logo"
         ></img>
       </a>
-      <h1>Ellen's Realty Yardi Report Comparison Tool</h1>
+      <h1>Ellen's Realty Yardi Report Comparison Tool V2</h1>
       <Compare />
     </div>
   );
