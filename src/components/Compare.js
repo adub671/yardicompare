@@ -34,7 +34,10 @@ const Compare = () => {
         schema: schema1,
         transformData(data) {
           return data.filter((row, i) => {
-            return (i > 2 && row[2] === "Current") || row[2] === "Status";
+            return (
+              (i > 2 && row[2] === "Current" && row[3] === "rent-res") ||
+              row[2] === "Status"
+            );
           });
         },
       }).then((rows) => {
@@ -85,7 +88,6 @@ const Compare = () => {
     }
     const results = [];
     const analysisObj = {};
-    const resultObj = {};
 
     for (let i = 0; i < data1.length; i++) {
       //iterate through rent schedule data to get charge to date
@@ -99,26 +101,12 @@ const Compare = () => {
           leaseto: null,
         };
         analysisObj[tenantName]["tenant"] = tenantName;
-        if (tenantName === "Emily Snider") {
-          console.log(
-            date,
-            date === "Invalid Date" ? null : date,
-            "EMILY SNIDER DATE"
-          );
-        }
         analysisObj[tenantName]["chargeto"] =
           date === "Invalid Date" ? null : date;
       } else {
-        if (analysisObj[tenantName]["chargeto"] < date) {
+        if (new Date(analysisObj[tenantName]["chargeto"]) < new Date(date)) {
           analysisObj[tenantName]["chargeto"] =
             date === "Invalid Date" ? null : date;
-        }
-        if (tenantName === "Emily Snider") {
-          console.log(
-            date,
-
-            "EMILY SNIDER DATE2"
-          );
         }
       }
       //TODO ADD CONDITIONAL IF ENTRY EXISTS ALREADY COMPARE THE DATES, PUSH ONLY THE LATEST DATE
@@ -137,7 +125,6 @@ const Compare = () => {
       analysisObj[tenantName]["tenant"] = tenantName;
       analysisObj[tenantName]["leaseto"] = date;
     }
-    // console.log(analysisObj, "analsys Obj");
     //Analysis loop through created analysisObj to see conditions for chargeto & leaseto
     const analysisArr = Object.values(analysisObj);
     for (let i = 0; i < analysisArr.length; i++) {
@@ -150,13 +137,15 @@ const Compare = () => {
         Math.abs(leaseto?.getTime() - chargeto?.getTime()) /
         (1000 * 60 * 60 * 24);
       if (dateDiff > 2 || (!analyze.leaseto && analyze.chargeto)) {
-        results.push(analyze);
+        if (analyze.leaseto && !analyze.chargeto) {
+        } else {
+          results.push(analyze);
+        }
       }
 
       // }
     }
 
-    console.log(results, "results");
     setMismatch(results);
     setMismatchCounter(results.length);
   }
